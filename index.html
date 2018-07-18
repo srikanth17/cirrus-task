@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="myApp">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Cirrus Research</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="node_modules/angular-moment-picker/dist/angular-moment-picker.min.css">
+</head>
+<body class="container" ng-controller="AppCtrl">
+<h1>Data Visualization</h1>
+<p>Select one of the instruments &amp; click the button to view the graph.</p>
+<p>
+    <select ng-model="selectInstrument"
+            ng-options="x.Name for x in instruments track by x.Id"
+            style="color:black;
+                  font-family:serif;
+                  border:1px solid red;
+                  border-radius: 10px">
+    </select>
+    &nbsp;
+    <button ng-click="selectedInstrument()"
+            style="color:white;
+                  background-color:#c41200;
+                  font-size:12px;
+                  border:1px solid transparent;
+                  border-radius: 10px">
+        Select Instrument
+    </button>
+</p>
+<div ng-if="connecting">
+    <p>Connecting to the instrument</p>
+    <i class="fa fa-spinner fa-spin" style="font-size:24px"></i>
+</div>
+<div class="row">
+    <div class="col-md-6" ng-show="liveDataTypes">
+        <h3>Live Data</h3>
+        <p>Select a data type</p>
+        <p>
+            <select ng-model="selectLiveDataTypes"
+                    ng-options="x for x in liveDataTypes"
+                    ng-change="changeLiveData(selectLiveDataTypes)"
+                    style="color:black;
+                  font-family:serif;
+                  border:1px solid red;
+                  border-radius: 10px">
+            </select>
+        </p>
+        <div ng-if="liveDataNotAvailable">
+            <p>Data for this data type is not available, please select other data types</p>
+        </div>
+        <div ng-if="showingLiveData">
+            <p>Loading</p>
+            <i class="fa fa-spinner fa-spin" style="font-size:24px"></i>
+        </div>
+        <canvas id="liveChart"></canvas>
+    </div>
+
+    <div class="col-md-6" ng-if="timeHistoryTypes">
+        <h3>History Data</h3>
+        <div class="row" style="margin-bottom: 30px;">
+            <div class="col-md-4">
+                <p>Select a data type</p>
+                <p>
+                    <select ng-model="selectTimeHistoryTypes"
+                            ng-options="x for x in timeHistoryTypes"
+                            ng-change="changeHistoryData(selectTimeHistoryTypes, startDate, endDate)"
+                            style="color:black;
+                  font-family:serif;
+                  border:1px solid red;
+                  border-radius: 10px">
+                    </select>
+                </p>
+            </div>
+            <div class="col-md-4">
+                <p>Start Date</p>
+                <div class="input-group">
+                    <input class="form-control"
+                           placeholder="{{startDate}}"
+                           moment-picker="startDate"
+                           format="YYYY-MM-DD HH:mm"
+                           start-view="month"
+                           start-date="startDate"
+                           max-date="yesterday"
+                           ng-model="startDate"
+                           ng-model-options="{ updateOn: 'blur' }"
+                           change="startDateChanged(selectTimeHistoryTypes, newValue, oldValue)"
+                    />
+                </div>
+            </div>
+            <div class="col-md-4">
+                <p>End Date</p>
+                <div class="input-group">
+                    <input class="form-control"
+                           placeholder="{{endDate}}"
+                           moment-picker="endDate"
+                           format="YYYY-MM-DD HH:mm"
+                           start-view="month"
+                           start-date="endDate"
+                           min-date="startDate"
+                           max-date="yesterday"
+                           ng-model="endDate"
+                           ng-model-options="{ updateOn: 'blur' }"
+                           change="endDateChanged(selectTimeHistoryTypes, newValue, oldValue)"
+                    />
+                </div>
+            </div>
+        </div>
+        <div ng-if="noData" ng-init="noData=false">
+            <p>No data available, please select someother date or time range</p>
+        </div>
+        <div ng-if="showingHistoryData">
+            <p>Loading</p>
+            <i class="fa fa-spinner fa-spin" style="font-size:24px"></i>
+        </div>
+        <canvas id="historyChart" ng-show="!showingHistoryData"></canvas>
+    </div>
+</div>
+<canvas id="myChart" width="400" height="150"></canvas>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/angular-chart.js/1.1.1/angular-chart.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/moment-with-locales.js"></script>
+<script src="node_modules/angular-moment-picker/dist/angular-moment-picker.min.js"></script>
+<script type="text/javascript" src="index.js"></script>
+</body>
+</html>
